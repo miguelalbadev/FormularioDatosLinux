@@ -7,8 +7,8 @@ import $ from 'jquery';
 class NameForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: {Nombre:'Miguel',Apellidos:'Alba Aparicio',Edad:'37'}};
-
+    this.state = {value: {Id:'', Nombre:'',Apellidos:'',Edad:''}};
+    
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeNombre = this.handleChangeNombre.bind(this);
     this.handleChangeApellidos = this.handleChangeApellidos.bind(this);
@@ -16,11 +16,20 @@ class NameForm extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  carga(data) {
+    debugger;
+      if (data != null) {
+        
+        this.setState({value:{Nombre:data.Nombre,Apellidos:data.Apellidos,Edad:data.Edad}});
+        
+      }
+    }
+
   componentDidMount(){
 
     $.ajax({
 
-      url:"http://10.60.23.21:64509/api/Personas/1",
+      url:"http://10.60.23.21:64509/api/Personas/2",
         type : 'GET',
  
         // el tipo de información que se espera de respuesta
@@ -28,20 +37,7 @@ class NameForm extends React.Component {
      
         // código a ejecutar si la petición es satisfactoria;
         // la respuesta es pasada como argumento a la función
-        success : function(data) {
-          debugger;
-            if (data != null) {
-                alert('la peticion GET funcionó correctamente');
-            }
-        },
-     
-        // código a ejecutar si la petición falla;
-        // son pasados como argumentos a la función
-        // el objeto de la petición en crudo y código de estatus de la petición
-        error : function(xhr, status) {
-          debugger;
-            alert('Disculpe, existió un problema');
-        },
+        success : (datos) => this.carga(datos),
      
         // código a ejecutar sin importar si la petición falló o no
         complete : function(xhr, status) {
@@ -49,6 +45,8 @@ class NameForm extends React.Component {
         }
    });
   }
+
+
 
   validaNombre(valor){
     if(valor.length<=20){
@@ -119,8 +117,51 @@ class NameForm extends React.Component {
   }
 
   handleSubmit(event) {
-    alert('Hola don: ' + this.state.value["Nombre"]+' '+this.state.value["Apellidos"]+' '+this.state.value["Edad"]);
+    //alert('Hola don: ' + this.state.value["Nombre"]+' '+this.state.value["Apellidos"]+' '+this.state.value["Edad"]);
+    let nombre = document.getElementById('textNombre').value;
+    let apellidos = document.getElementById('textApellidos').value;
+    let edad = document.getElementById('textEdad').value;
+
+    $.ajax({
+
+      url:"http://10.60.23.21:64509/api/Personas",
+        type : 'POST',
+ 
+        // el tipo de información que se espera de respuesta
+        dataType : 'json',
+
+        data : { Nombre: nombre, Apellidos: apellidos, Edad:edad} ,
+     
+        // código a ejecutar si la petición es satisfactoria;
+        // la respuesta es pasada como argumento a la función
+        success : function(data) {
+          debugger;
+          alert('La función POST funcionó correctamente');
+            
+        },
+     
+        // código a ejecutar si la petición falla;
+        // son pasados como argumentos a la función
+        // el objeto de la petición en crudo y código de estatus de la petición
+        error : function(xhr, status) {
+          debugger;
+            alert('Disculpe, existió un problema con la función POST');
+        },
+     
+        // código a ejecutar sin importar si la petición falló o no
+        complete : function(xhr, status) {
+            alert('Petición realizada');
+        }
+    });
     event.preventDefault();
+  }
+
+  handleDelete(event){
+    alert('Has seleccionado borrar la persona');
+  }
+
+  handleUpdate(event){
+    alert('Has seleccionado modificar la persona');
   }
 
   render() {
@@ -143,7 +184,10 @@ class NameForm extends React.Component {
             <input id="textEdad" type="text" value={this.state.value["Edad"]} onChange={this.handleChangeEdad} />
           </label>
           <br/><br/>
-          <input type="submit" value="Enviar" />
+          <input id="buttonCrear" type="submit" value="Guardar" />
+          <button type="reset" id="buttonNuevo">Nuevo</button>
+          <button onClick={this.handleDelete} type="button" id="buttonEliminar">Eliminar</button>
+          
         </form>
       </fieldset>
     );
